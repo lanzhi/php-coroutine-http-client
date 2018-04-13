@@ -1,0 +1,34 @@
+{
+    "name": "lanzhi/php-async-http-client",
+    "description": "php async http client",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "蓝至",
+            "email": "i@lanzhi.me"
+        }
+    ],
+    "minimum-stability": "dev",
+    "require": {
+        "php": ">=7.0",
+        "lanzhi/php-coroutine": "*",
+        "lanzhi/php-coroutine-socket": "*",
+        "guzzlehttp/psr7": "^1.4",
+        "psr/http-message": "^1.0"
+    },
+    "autoload": {
+        "psr-4": {"lanzhi\\http\\": "src/"}
+    },
+    "require-dev": {
+        "rmccue/requests": "^1.7",
+        "kriswallsmith/buzz": "^0.17.1",
+        "php-http/httplug": "^1.1",
+        "psr/link": "^1.0",
+        "nategood/httpful": "^0.2.20",
+        "guzzlehttp/guzzle": "^6.3",
+        "symfony/console": "^4.0",
+        "react/event-loop": "0.4.*",
+        "react/http-client": "0.5.8"
+    }
+}

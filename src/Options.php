@@ -13,7 +13,7 @@ namespace lanzhi\http;
  * Class RequestOptions
  * @package lanzhi\http
  */
-class RequestOptions
+class Options
 {
     /**
      * body: (resource|string|null|int|float|StreamInterface|callable|\Iterator)
@@ -27,6 +27,8 @@ class RequestOptions
      * indefinitely (the default behavior).
      */
     const CONNECT_TIMEOUT = 'connect_timeout';
+    const WRITE_TIMEOUT   = 'write_timeout';
+    const READ_TIMEOUT    = 'read_timeout';
 
     /**
      * form_params: (array) Associative array of form field names to values
@@ -87,8 +89,7 @@ class RequestOptions
 //    const SSL_KEY = 'ssl_key';
 //    const STREAM = 'stream';
 //    const VERIFY = 'verify';
-//    const TIMEOUT = 'timeout';
-//    const READ_TIMEOUT = 'read_timeout';
+
 //    const VERSION = 'version';
 //    const FORCE_IP_RESOLVE = 'force_ip_resolve';
 }

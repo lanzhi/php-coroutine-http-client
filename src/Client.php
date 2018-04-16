@@ -10,8 +10,10 @@ namespace lanzhi\http;
 
 
 use lanzhi\coroutine\TaskUnitInterface;
+use lanzhi\socket\Connector;
 use Psr\Http\Message\UriInterface;
 use Psr\Log\LoggerInterface;
+use Psr\Log\NullLogger;
 
 /**
  * Class Client
@@ -24,15 +26,16 @@ use Psr\Log\LoggerInterface;
  * 此外 options 不支持如下选项：
  * handler
  *
- * @method TaskUnit get(string|UriInterface $uri,    array $options = [])
- * @method TaskUnit head(string|UriInterface $uri,   array $options = [])
- * @method TaskUnit put(string|UriInterface $uri,    array $options = [])
- * @method TaskUnit post(string|UriInterface $uri,   array $options = [])
- * @method TaskUnit patch(string|UriInterface $uri,  array $options = [])
- * @method TaskUnit delete(string|UriInterface $uri, array $options = [])
+ * @method RequestTaskUnit get(string|UriInterface $uri,    array $options = [])
+ * @method RequestTaskUnit head(string|UriInterface $uri,   array $options = [])
+ * @method RequestTaskUnit put(string|UriInterface $uri,    array $options = [])
+ * @method RequestTaskUnit post(string|UriInterface $uri,   array $options = [])
+ * @method RequestTaskUnit patch(string|UriInterface $uri,  array $options = [])
+ * @method RequestTaskUnit delete(string|UriInterface $uri, array $options = [])
  */
-class Client implements ClientInterface
+class Client
 {
+    const VERSION = '0.0.1';
     /** @var array Default request options */
     private $config;
 
@@ -42,19 +45,18 @@ class Client implements ClientInterface
     private $logger;
 
     /**
-     * @param array $config Client configuration settings.
-     *
-     * @see \GuzzleHttp\RequestOptions for a list of available request options.
+     * Client constructor.
+     * @param array $config
+     * @param LoggerInterface|null $logger
      */
     public function __construct(array $config = [], LoggerInterface $logger=null)
     {
-        // Convert the base_uri to a UriInterface
         if (isset($config['base_uri'])) {
             $config['base_uri'] = \GuzzleHttp\Psr7\uri_for($config['base_uri']);
         }
 
         $this->config = $config;
-        $this->logger = $logger;
+        $this->logger = $logger ?? new NullLogger();
     }
 
     public function __call($method, $args)
@@ -63,7 +65,7 @@ class Client implements ClientInterface
             throw new \InvalidArgumentException('Magic request methods require a URI and optional options array');
         }
 
-        $uri = $args[0];
+        $uri  = $args[0];
         $opts = isset($args[1]) ? $args[1] : [];
 
         return $this->request($method, $uri, $opts);
@@ -80,13 +82,14 @@ class Client implements ClientInterface
         $builder = new RequestBuilder($method, $uri, $this->config + $options);
         $request = $builder->build();
 
-        $timeout = $options['connect_timeout'] ?? null;
-        $connector = new Connector($request->getUri(), $timeout, $this->logger);
+        $connectOptions = $this->getConnectOptions($options);
 
-        return new TaskUnit($request, $connector, function ($startLine, $header, $body){
-            $builder = new ResponseBuilder($startLine, $header, $body);
-            return $builder->build();
-        }, $this->logger);
+        return new RequestTaskUnit(
+            $request,
+            new Connector($this->logger),
+            $connectOptions,
+            $this->logger
+        );
     }
 
     /**
@@ -96,6 +99,27 @@ class Client implements ClientInterface
     public function getConfig($option = null)
     {
         return $this->config;
+    }
+
+    /**
+     * 获取与连接有关的选项信息
+     * @param array $options
+     * @return array
+     */
+    private function getConnectOptions(array $options)
+    {
+        $timeout = [];
+        if(isset($options[Options::CONNECT_TIMEOUT])){
+            $timeout['connect'] = $options[Options::CONNECT_TIMEOUT];
+        }
+        if(isset($options[Options::WRITE_TIMEOUT])){
+            $timeout['write'] = $options[Options::WRITE_TIMEOUT];
+        }
+        if(isset($options[Options::READ_TIMEOUT])){
+            $timeout['read'] = $options[Options::READ_TIMEOUT];
+        }
+
+        return ['timeout'=>$timeout];
     }
 
 }

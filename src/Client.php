@@ -86,7 +86,7 @@ class Client
 
         return new RequestTaskUnit(
             $request,
-            new Connector($this->logger),
+            new Connector([], $this->logger),
             $connectOptions,
             $this->logger
         );

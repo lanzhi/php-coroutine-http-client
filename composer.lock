@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "0c7a384a2d20f63b14a05acf9992edce",
-    "content-hash": "a36c0ecd5ad52fe2d8db661abbebefaf",
+    "hash": "3b6e3557034896b6e5a0c5de317672e9",
+    "content-hash": "b5e8b6400ba21c0a751ee51fd5d2384f",
     "packages": [
         {
             "name": "guzzlehttp/psr7",
@@ -123,16 +123,16 @@
         },
         {
             "name": "lanzhi/php-coroutine-socket",
-            "version": "dev-master",
+            "version": "v0.0.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/lanzhi/php-coroutine-socket.git",
-                "reference": "435c284aa4871029662358bd57f043428a1a7995"
+                "reference": "eaea2018b6b29fc513bda3e77746c7f23d1df68f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://files.phpcomposer.com/files/lanzhi/php-coroutine-socket/435c284aa4871029662358bd57f043428a1a7995.zip",
-                "reference": "435c284aa4871029662358bd57f043428a1a7995",
+                "url": "https://files.phpcomposer.com/files/lanzhi/php-coroutine-socket/eaea2018b6b29fc513bda3e77746c7f23d1df68f.zip",
+                "reference": "eaea2018b6b29fc513bda3e77746c7f23d1df68f",
                 "shasum": ""
             },
             "require": {
@@ -160,7 +160,7 @@
                 }
             ],
             "description": "php coroutine socket",
-            "time": "2018-04-13 13:48:56"
+            "time": "2018-04-16 08:11:06"
         },
         {
             "name": "php-ds/php-ds",
@@ -1416,12 +1416,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/console.git",
-                "reference": "21fe51593bc84b5f132b69a4abf5fb3c949afab9"
+                "reference": "1d0045219173d36244cf55906b5bcbfda5830faf"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://files.phpcomposer.com/files/symfony/console/21fe51593bc84b5f132b69a4abf5fb3c949afab9.zip",
-                "reference": "21fe51593bc84b5f132b69a4abf5fb3c949afab9",
+                "url": "https://files.phpcomposer.com/files/symfony/console/1d0045219173d36244cf55906b5bcbfda5830faf.zip",
+                "reference": "1d0045219173d36244cf55906b5bcbfda5830faf",
                 "shasum": ""
             },
             "require": {
@@ -1476,7 +1476,7 @@
             ],
             "description": "Symfony Console Component",
             "homepage": "https://symfony.com",
-            "time": "2018-04-08 10:38:20"
+            "time": "2018-04-14 16:36:26"
         },
         {
             "name": "symfony/options-resolver",

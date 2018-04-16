@@ -80,12 +80,12 @@ class RequestTaskUnit extends AbstractTaskUnit
         //连接使用过之后，归还连接器
         $this->connector->back($connection);
 
-        $response = new ResponseBuilder(
+        $builder = new ResponseBuilder(
             $handle->getStartLine(),
             $handle->getHeader(),
             $handle->getBody()
         );
-        return $response;
+        return $builder->build();
     }
 
 

@@ -13,7 +13,7 @@
     "require": {
         "php": ">=7.0",
         "lanzhi/php-coroutine": "*",
-        "lanzhi/php-coroutine-socket": "*",
+        "lanzhi/php-coroutine-socket": "^v0.0.1",
         "guzzlehttp/psr7": "^1.4",
         "psr/http-message": "^1.0"
     },

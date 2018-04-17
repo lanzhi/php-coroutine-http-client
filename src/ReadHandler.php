@@ -25,7 +25,7 @@ class ReadHandler implements ReadHandlerInterface
     const HTTP_LAST_CHUNK_SIZE  = 0;
 
     private $startLine;
-    private $header;
+    private $headers;
     private $body;
     private $logger;
 
@@ -47,9 +47,9 @@ class ReadHandler implements ReadHandlerInterface
         return $this->startLine;
     }
 
-    public function getHeader()
+    public function getHeaders()
     {
-        return $this->header;
+        return $this->headers;
     }
 
     public function getBody()
@@ -71,9 +71,9 @@ class ReadHandler implements ReadHandlerInterface
             $this->process===self::PROCESS_HEADER &&
             strpos($buffer, self::HTTP_HEADER_DELIMITER)!==false
         ){
-            list($this->header, $buffer) = explode(self::HTTP_HEADER_DELIMITER, $buffer, 2);
+            list($this->headers, $buffer) = explode(self::HTTP_HEADER_DELIMITER, $buffer, 2);
 
-            $this->unpackMetaInfoFromHeader();
+            $this->unpackMetaInfoFromHeaders();
             if(!$this->isChunked){
                 $size = $this->contentLength - strlen($buffer);
             }
@@ -98,16 +98,16 @@ class ReadHandler implements ReadHandlerInterface
     /**
      *
      */
-    private function unpackMetaInfoFromHeader()
+    private function unpackMetaInfoFromHeaders()
     {
         $this->isChunked     = false;
         $this->contentLength = null;
         $this->contentEncode = null;
 
-        $headers = explode(self::HTTP_LINE_DELIMITER, $this->header);
-        foreach ($headers as $header){
-            $header = strtolower($header);
-            list($name, $value) = explode(':', $header);
+        $lines = explode(self::HTTP_LINE_DELIMITER, $this->headers);
+        foreach ($lines as $line){
+            $line = strtolower($line);
+            list($name, $value) = explode(':', $line);
             switch ($name){
                 case 'content-length':
                     $this->contentLength = trim($value);

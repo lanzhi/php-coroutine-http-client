@@ -82,7 +82,7 @@ class RequestTaskUnit extends AbstractTaskUnit
 
         $builder = new ResponseBuilder(
             $handle->getStartLine(),
-            $handle->getHeader(),
+            $handle->getHeaders(),
             $handle->getBody()
         );
         return $builder->build();

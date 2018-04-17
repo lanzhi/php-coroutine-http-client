@@ -28,7 +28,7 @@ ksort($query);
 
 //$uri = 'test.com/get.php';
 
-$output = new ConsoleOutput(ConsoleOutput::VERBOSITY_DEBUG);
+$output = new ConsoleOutput(ConsoleOutput::VERBOSITY_VERY_VERBOSE);
 $client = new Client([], new ConsoleLogger($output));
 $task = $client->get($uri, ['query'=>$query]);
 

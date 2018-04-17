@@ -26,12 +26,10 @@ use Psr\Log\NullLogger;
  * 此外 options 不支持如下选项：
  * handler
  *
- * @method RequestTaskUnit get(string|UriInterface $uri,    array $options = [])
- * @method RequestTaskUnit head(string|UriInterface $uri,   array $options = [])
- * @method RequestTaskUnit put(string|UriInterface $uri,    array $options = [])
- * @method RequestTaskUnit post(string|UriInterface $uri,   array $options = [])
- * @method RequestTaskUnit patch(string|UriInterface $uri,  array $options = [])
- * @method RequestTaskUnit delete(string|UriInterface $uri, array $options = [])
+ * @method RequestTaskUnit get(string|UriInterface $uri,  array $options = [])
+ * @method RequestTaskUnit head(string|UriInterface $uri, array $options = [])
+ * @method RequestTaskUnit put(string|UriInterface $uri,  array $options = [])
+ * @method RequestTaskUnit post(string|UriInterface $uri, array $options = [])
  */
 class Client
 {

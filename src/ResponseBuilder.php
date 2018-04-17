@@ -25,7 +25,7 @@ class ResponseBuilder
     /**
      * @var string
      */
-    private $header;
+    private $headers;
     /**
      * @var string
      */
@@ -37,10 +37,10 @@ class ResponseBuilder
      * @param string $header
      * @param string|null $body
      */
-    public function __construct(string $startLine, string $header, string $body=null)
+    public function __construct(string $startLine, string $headers, string $body=null)
     {
         $this->startLine = $startLine;
-        $this->header    = $header;
+        $this->headers   = $headers;
         $this->body      = $body;
     }
 
@@ -48,7 +48,7 @@ class ResponseBuilder
     {
         list($status, $version, $reason) = $this->parseStartLine($this->startLine);
 
-        $headers = $this->parseHeader($this->header);
+        $headers = $this->parseHeaders($this->headers);
         return new Response($status, $headers, $this->body, $version, $reason);
     }
 
@@ -71,11 +71,11 @@ class ResponseBuilder
      * @param string $header
      * @return array
      */
-    private function parseHeader(string $header)
+    private function parseHeaders(string $string)
     {
         $headers = [];
-        $header = explode("\r\n", $header);
-        foreach ($header as $index=>$line){
+        $lines = explode("\r\n", $string);
+        foreach ($lines as $line){
             if(strpos($line, ':')===false){
                 continue;
             }

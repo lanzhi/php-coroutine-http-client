@@ -10,6 +10,8 @@ namespace lanzhi\http;
 
 
 use Generator;
+use lanzhi\http\exceptions\HttpException;
+use lanzhi\http\exceptions\RedirectTooManyTimesException;
 use lanzhi\socket\ConnectionInterface;
 use lanzhi\socket\connection;
 use lanzhi\socket\Connector;
@@ -17,6 +19,7 @@ use lanzhi\socket\ConnectorInterface;
 use Psr\Http\Message\ResponseInterface;
 use lanzhi\coroutine\AbstractTaskUnit;
 use Psr\Http\Message\RequestInterface;
+use Psr\Http\Message\UriInterface;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 
@@ -37,41 +40,45 @@ class RequestTaskUnit extends AbstractTaskUnit
      */
     private $connector;
     /**
-     * @var array
+     * @var false | int
      */
-    private $options;
+    private $allowRedirects;
     /**
      * @var LoggerInterface
      */
     private $logger;
 
-
     /**
      * RequestTaskUnit constructor.
      * @param RequestInterface $request
-     * @param ConnectorInterface $connection
-     * @param array $options
+     * @param ConnectorInterface $connector
+     * @param int $allowRedirects
      * @param LoggerInterface|null $logger
      */
-    public function __construct(RequestInterface $request, ConnectorInterface $connector, array $options=[], LoggerInterface $logger=null)
+    public function __construct(RequestInterface $request, ConnectorInterface $connector, int $allowRedirects, LoggerInterface $logger=null)
     {
-        $this->request   = $request;
-        $this->connector = $connector;
-        $this->options   = $options;
-        $this->logger    = $logger ?? new NullLogger();
+        $this->request        = $request;
+        $this->connector      = $connector;
+        $this->allowRedirects = $allowRedirects;
+        $this->logger         = $logger ?? new NullLogger();
 
         parent::__construct($logger);
     }
 
     /**
+     * 在此处支持重定向
      * @return Generator
      */
     protected function generate(): Generator
     {
-        list($scheme, $host, $port) = Connector::parseUri($this->request->getUri());
-        $connection = $this->connector->get($scheme, $host, $port, $this->options);
+        $request = $this->request;
+        $remains = $this->allowRedirects;
 
-        $data = (new StreamBuilder($this->request))->build()->getContents();
+        request:
+        list($scheme, $host, $port) = Connector::parseUri($request->getUri());
+        $connection = $this->connector->get($scheme, $host, $port);
+
+        $data = (new StreamBuilder($request))->build()->getContents();
         yield from $connection->write($data, true);
 
         $handle = new ReadHandler($this->logger);
@@ -85,9 +92,45 @@ class RequestTaskUnit extends AbstractTaskUnit
             $handle->getHeaders(),
             $handle->getBody()
         );
-        return $builder->build();
+        $response = $builder->build();
+        $statusCode = $response->getStatusCode();
+        if($this->allowRedirects && ($statusCode==301 || $statusCode==302)){
+            if($remains--){
+                $request = $this->buildNewRequest($request, $response);
+                goto request;
+            }else{
+                throw new RedirectTooManyTimesException($this->request->getUri()->__toString(), $this->allowRedirects);
+            }
+        }else{
+            return $response;
+        }
     }
 
+    /**
+     * 使用响应中 Location 首部替换当前请求的 URI
+     * @param RequestInterface $request
+     * @param ResponseInterface $response
+     */
+    private function buildNewRequest(RequestInterface $request, ResponseInterface $response)
+    {
+        /**
+         * @var UriInterface $uri
+         */
+        $location = $response->getHeader('Location');
+        if(empty($location)){
+            throw new HttpException("redirect response don't has a Location header;");//todo
+        }
+        $parts = parse_url($location);
+        $uri = $request->getUri();
+        $uri = isset($parts['scheme'])   ? $uri->withScheme($parts['scheme']) : $uri;
+        $uri = isset($parts['host'])     ? $uri->withHost($parts['host'])     : $uri;
+        $uri = isset($parts['port'])     ? $uri->withPort($parts['port'])     : $uri;
+        $uri = isset($parts['user'])     ? $uri->withUserInfo($parts['user'], $parts['pass'] ?? null) : $uri;
+        $uri = isset($parts['path'])     ? $uri->withPath($parts['path'])         : $uri;
+        $uri = isset($parts['query'])    ? $uri->withQuery($parts['query'])       : $uri;
+        $uri = isset($parts['fragment']) ? $uri->withFragment($parts['fragment']) : $uri;
 
+        return $request->withUri($uri);
+    }
 
 }

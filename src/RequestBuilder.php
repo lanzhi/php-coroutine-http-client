@@ -52,7 +52,7 @@ class RequestBuilder
     }
 
     /**
-     * 检查options，提供默认选项
+     * 检查options，为部分 header 提供默认选项
      * @param array $options
      * @return array
      */
@@ -60,7 +60,7 @@ class RequestBuilder
     {
         $options['headers'] = isset($options['headers']) ? $options['headers'] : [];
         $options['body']    = isset($options['body'])    ? $options['body']    : null;
-        $options['version'] = isset($options['version']) ? $options['version'] : '1.1';
+        $options['version'] = '1.1';
 
         if(empty($options['headers'])){
             $options['headers'] = ['User-Agent'=>$this->defaultUserAgent()];
@@ -77,8 +77,8 @@ class RequestBuilder
             }
         }
 
-        $options['headers']['Accept']     = $options['headers']['Accept'] ?? "*/*";
-        $options['headers']['Connection'] = $options['headers']['Connection'] ?? "close";
+        $options['headers']['Accept']          = $options['headers']['Accept'] ?? "*/*";
+        $options['headers']['Accept-Encoding'] = 'identity';//当前不支持 gzip、deflate 等内容编码方式
 
         return $options;
     }

@@ -8,6 +8,8 @@
 
 namespace lanzhi\http;
 
+use Psr\Http\Message\StreamInterface;
+
 
 /**
  * Class RequestOptions
@@ -16,80 +18,70 @@ namespace lanzhi\http;
 class Options
 {
     /**
-     * body: (resource|string|null|int|float|StreamInterface|callable|\Iterator)
-     * Body to send in the request.
-     */
-    const BODY = 'body';
-
-    /**
-     * connect_timeout: (float, default=0) Float describing the number of
-     * seconds to wait while trying to connect to a server. Use 0 to wait
-     * indefinitely (the default behavior).
+     * 连接建立超时时间，浮点型，默认 3.0
      */
     const CONNECT_TIMEOUT = 'connect_timeout';
+    /**
+     * 向连接中写入数据的超时时间，浮点型，默认 10.0
+     */
     const WRITE_TIMEOUT   = 'write_timeout';
+    /**
+     * 从连接中读取数据的超时时间，浮点型，默认 30.0
+     */
     const READ_TIMEOUT    = 'read_timeout';
 
     /**
-     * form_params: (array) Associative array of form field names to values
-     * where each value is a string or array of strings. Sets the Content-Type
-     * header to application/x-www-form-urlencoded when no Content-Type header
-     * is already present.
-     */
-    const FORM_PARAMS = 'form_params';
-
-    /**
-     * headers: (array) Associative array of HTTP headers. Each value MUST be
-     * a string or array of strings.
+     * @var array
+     * 数组类型，键为首部名称，应该遵循 HTTP 规范，大小写敏感，值可以为字符串或者数组
      */
     const HEADERS = 'headers';
 
     /**
-     * json: (mixed) Adds JSON data to a request. The provided value is JSON
-     * encoded and a Content-Type header of application/json will be added to
-     * the request if no Content-Type header is already present.
+     * @var int | float | string | resource | StreamInterface 默认null
+     */
+    const BODY = 'body';
+
+    /**
+     * @var array
+     * 一旦提供该参数，则会提供默认 Content-Type: application/json 首部
      */
     const JSON = 'json';
 
     /**
-     * multipart: (array) Array of associative arrays, each containing a
-     * required "name" key mapping to the form field, name, a required
-     * "contents" key mapping to a StreamInterface|resource|string, an
-     * optional "headers" associative array of custom headers, and an
-     * optional "filename" key mapping to a string to send as the filename in
-     * the part. If no "filename" key is present, then no "filename" attribute
-     * will be added to the part.
+     * @var array 支持多维数组
+     * 相当于提交 application/x-www-form-urlencoded 类型表单
+     * 一旦提供该参数，则会提供默认 Content-Type: application/x-www-form-urlencoded 首部
+     */
+    const FORM_PARAMS = 'form_params';
+
+    /**
+     * @var array 支持多维数组，暂时不支持文件
+     * 相当于提交 multipart/form-data 类型表单
+     * 一旦提供该参数，则会提供默认 Content-Type: multipart/form-data 首部
      */
     const MULTIPART = 'multipart';
 
     /**
-     * query: (array|string) Associative array of query string values to add
-     * to the request. This option uses PHP's http_build_query() to create
-     * the string representation. Pass a string value if you need more
-     * control than what this method provides
+     * @var string | array
      */
     const QUERY = 'query';
 
+    /**
+     * @var false | int 默认 3，即单次请求最多允许重定向 3 次；该参数的有效范围为 0～10；false 即0
+     */
+    const ALLOW_REDIRECTS = 'allow_redirects';
 
-//    const ALLOW_REDIRECTS = 'allow_redirects';
+    /**
+     * 当前只支持 HTTP/1.1 版本协议，其它值均为无效
+     */
+    const VERSION = 'version';
+
 //    const AUTH = 'auth';
 //    const CERT = 'cert';
 //    const COOKIES = 'cookies';
-//    const DEBUG = 'debug';
-//    const DECODE_CONTENT = 'decode_content';
-//    const DELAY = 'delay';
-//    const EXPECT = 'expect';
-//    const HTTP_ERRORS = 'http_errors';
-//    const ON_HEADERS = 'on_headers';
-//    const ON_STATS = 'on_stats';
-//    const PROGRESS = 'progress';
 //    const PROXY = 'proxy';
 //    const SINK = 'sink';
-//    const SYNCHRONOUS = 'synchronous';
 //    const SSL_KEY = 'ssl_key';
-//    const STREAM = 'stream';
 //    const VERIFY = 'verify';
 
-//    const VERSION = 'version';
-//    const FORCE_IP_RESOLVE = 'force_ip_resolve';
 }

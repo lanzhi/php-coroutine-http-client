@@ -10,7 +10,11 @@ namespace lanzhi\http;
 
 
 use lanzhi\coroutine\TaskUnitInterface;
+use lanzhi\http\exceptions\HttpException;
+use lanzhi\http\exceptions\InvalidArgumentException;
+use lanzhi\http\exceptions\UnsupportedException;
 use lanzhi\socket\Connector;
+use lanzhi\socket\ConnectorInterface;
 use Psr\Http\Message\UriInterface;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
@@ -27,15 +31,19 @@ use Psr\Log\NullLogger;
  * handler
  *
  * @method RequestTaskUnit get(string|UriInterface $uri,  array $options = [])
- * @method RequestTaskUnit head(string|UriInterface $uri, array $options = [])
- * @method RequestTaskUnit put(string|UriInterface $uri,  array $options = [])
  * @method RequestTaskUnit post(string|UriInterface $uri, array $options = [])
  */
 class Client
 {
-    const VERSION = '0.0.1';
-    /** @var array Default request options */
-    private $config;
+    const VERSION     = '0.0.1';
+
+    const METHOD_GET  = 'GET';
+    const METHOD_POST = 'POST';
+
+    /**
+     * @var array
+     */
+    private $defaultOptions;
 
     /**
      * @var LoggerInterface
@@ -47,26 +55,33 @@ class Client
      * @param array $config
      * @param LoggerInterface|null $logger
      */
-    public function __construct(array $config = [], LoggerInterface $logger=null)
+    public function __construct(array $defaultOptions = [], LoggerInterface $logger=null)
     {
-        if (isset($config['base_uri'])) {
-            $config['base_uri'] = \GuzzleHttp\Psr7\uri_for($config['base_uri']);
+        if (isset($defaultOptions['base_uri'])) {
+            $defaultOptions['base_uri'] = \GuzzleHttp\Psr7\uri_for($defaultOptions['base_uri']);
         }
 
-        $this->config = $config;
-        $this->logger = $logger ?? new NullLogger();
+        $this->defaultOptions = $defaultOptions;
+        $this->logger         = $logger ?? new NullLogger();
     }
 
     public function __call($method, $args)
     {
         if (count($args) < 1) {
-            throw new \InvalidArgumentException('Magic request methods require a URI and optional options array');
+            throw new InvalidArgumentException('Magic request methods require a URI and optional options array');
         }
 
-        $uri  = $args[0];
-        $opts = isset($args[1]) ? $args[1] : [];
-
-        return $this->request($method, $uri, $opts);
+        $method = strtoupper($method);
+        //当前只支持两种请求 GET、POST
+        switch ($method){
+            case self::METHOD_GET:
+            case self::METHOD_POST:
+                $uri  = $args[0];
+                $opts = isset($args[1]) ? $args[1] : [];
+                return $this->request($method, $uri, $opts);
+            default:
+                throw new UnsupportedException("unsupported now; method:{$method}");
+        }
     }
 
     /**
@@ -77,26 +92,45 @@ class Client
      */
     public function request($method, $uri, array $options = []): TaskUnitInterface
     {
-        $builder = new RequestBuilder($method, $uri, $this->config + $options);
+        $builder = new RequestBuilder($method, $uri, $this->defaultOptions + $options);
         $request = $builder->build();
 
-        $connectOptions = $this->getConnectOptions($options);
+        if($request->getUri()->getScheme()==='https'){
+            throw new UnsupportedException("unsupported now; scheme:https");
+        }
 
-        return new RequestTaskUnit(
-            $request,
-            new Connector([], $this->logger),
-            $connectOptions,
-            $this->logger
-        );
+        $connector      = $this->getConnector($options);
+        $allowRedirects = $this->getAllowRedirects($options);
+        return new RequestTaskUnit($request, $connector, $allowRedirects, $this->logger);
     }
 
     /**
      * @param null $option
      * @return array
      */
-    public function getConfig($option = null)
+    public function getDefaultOptions($option = null)
     {
-        return $this->config;
+        if(empty($option)){
+            return $this->defaultOptions;
+        }elseif(isset($this->defaultOptions[$option])){
+            return $this->defaultOptions[$option];
+        }else{
+            throw new HttpException("get unknown default option; option:{$option}");
+        }
+    }
+
+    /**
+     * @var ConnectorInterface
+     */
+    private $connector;
+    private function getConnector(array $options)
+    {
+        if(!$this->connector){
+            $connectOptions = $this->getConnectOptions($options);
+            $this->connector = new Connector($connectOptions, $this->logger);
+        }
+
+        return $this->connector;
     }
 
     /**
@@ -107,17 +141,20 @@ class Client
     private function getConnectOptions(array $options)
     {
         $timeout = [];
-        if(isset($options[Options::CONNECT_TIMEOUT])){
-            $timeout['connect'] = $options[Options::CONNECT_TIMEOUT];
-        }
-        if(isset($options[Options::WRITE_TIMEOUT])){
-            $timeout['write'] = $options[Options::WRITE_TIMEOUT];
-        }
-        if(isset($options[Options::READ_TIMEOUT])){
-            $timeout['read'] = $options[Options::READ_TIMEOUT];
-        }
+        $timeout['connect'] = $options[Options::CONNECT_TIMEOUT] ?? 3;
+        $timeout['write']   = $options[Options::WRITE_TIMEOUT]   ?? 10;
+        $timeout['read']    = $options[Options::READ_TIMEOUT]    ?? 30;
 
         return ['timeout'=>$timeout];
+    }
+
+    private function getAllowRedirects(array $options)
+    {
+        $allowRedirects = isset($options[Options::ALLOW_REDIRECTS]) ? $options[Options::ALLOW_REDIRECTS] : 3;
+        $allowRedirects = $allowRedirects<=0 ? 0  : $allowRedirects;
+        $allowRedirects = $allowRedirects>10 ? 10 : $allowRedirects;
+
+        return $allowRedirects;
     }
 
 }

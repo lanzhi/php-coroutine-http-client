@@ -1,6 +1,7 @@
 {
-    "name": "lanzhi/php-async-http-client",
-    "description": "php async http client",
+    "name": "lanzhi/php-coroutine-http-client",
+    "keywords": ["php", "coroutine", "http", "client", "HTTP client"],
+    "description": "php coroutine http client",
     "type": "library",
     "license": "MIT",
     "authors": [

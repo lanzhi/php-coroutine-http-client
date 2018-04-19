@@ -10,14 +10,11 @@ namespace lanzhi\http;
 
 
 use Generator;
+use lanzhi\coroutine\AbstractRoutineUnit;
 use lanzhi\http\exceptions\HttpException;
 use lanzhi\http\exceptions\RedirectTooManyTimesException;
-use lanzhi\socket\ConnectionInterface;
-use lanzhi\socket\connection;
 use lanzhi\socket\Connector;
-use lanzhi\socket\ConnectorInterface;
 use Psr\Http\Message\ResponseInterface;
-use lanzhi\coroutine\AbstractTaskUnit;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\UriInterface;
 use Psr\Log\LoggerInterface;
@@ -29,14 +26,15 @@ use Psr\Log\NullLogger;
  *
  * @method ResponseInterface getReturn()
  */
-class RequestTaskUnit extends AbstractTaskUnit
+class Request extends AbstractRoutineUnit
 {
+    const CHUNK_SIZE = 1048576;//1024*1024
     /**
      * @var RequestInterface
      */
     private $request;
     /**
-     * @var ConnectorInterface
+     * @var Connector
      */
     private $connector;
     /**
@@ -46,28 +44,29 @@ class RequestTaskUnit extends AbstractTaskUnit
     /**
      * @var LoggerInterface
      */
-    private $logger;
+    protected $logger;
 
     /**
      * RequestTaskUnit constructor.
      * @param RequestInterface $request
-     * @param ConnectorInterface $connector
+     * @param Connector $connector
      * @param int $allowRedirects
      * @param LoggerInterface|null $logger
      */
-    public function __construct(RequestInterface $request, ConnectorInterface $connector, int $allowRedirects, LoggerInterface $logger=null)
+    public function __construct(RequestInterface $request, Connector $connector, int $allowRedirects, LoggerInterface $logger=null)
     {
         $this->request        = $request;
         $this->connector      = $connector;
         $this->allowRedirects = $allowRedirects;
         $this->logger         = $logger ?? new NullLogger();
 
-        parent::__construct($logger);
+        parent::__construct();
     }
 
     /**
      * 在此处支持重定向
      * @return Generator
+     * @throws RedirectTooManyTimesException
      */
     protected function generate(): Generator
     {
@@ -78,8 +77,12 @@ class RequestTaskUnit extends AbstractTaskUnit
         list($scheme, $host, $port) = Connector::parseUri($request->getUri());
         $connection = $this->connector->get($scheme, $host, $port);
 
-        $data = (new StreamBuilder($request))->build()->getContents();
-        yield from $connection->write($data, true);
+        $stream = (new StreamBuilder($request))->build();
+        while(!$stream->eof()){
+            $data = $stream->read(self::CHUNK_SIZE);
+            yield from $connection->write($data);
+        }
+        yield from $connection->end();
 
         $handle = new ReadHandler($this->logger);
         yield from $connection->read($handle);
@@ -92,7 +95,7 @@ class RequestTaskUnit extends AbstractTaskUnit
             $handle->getHeaders(),
             $handle->getBody()
         );
-        $response = $builder->build();
+        $response   = $builder->build();
         $statusCode = $response->getStatusCode();
         if($this->allowRedirects && ($statusCode==301 || $statusCode==302)){
             if($remains--){
@@ -110,6 +113,8 @@ class RequestTaskUnit extends AbstractTaskUnit
      * 使用响应中 Location 首部替换当前请求的 URI
      * @param RequestInterface $request
      * @param ResponseInterface $response
+     * @return RequestInterface
+     * @throws HttpException
      */
     private function buildNewRequest(RequestInterface $request, ResponseInterface $response)
     {
@@ -118,7 +123,7 @@ class RequestTaskUnit extends AbstractTaskUnit
          */
         $location = $response->getHeader('Location');
         if(empty($location)){
-            throw new HttpException("redirect response don't has a Location header;");//todo
+            throw new HttpException("redirect response don't has a Location header;");
         }
         $parts = parse_url($location);
         $uri = $request->getUri();

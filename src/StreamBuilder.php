@@ -9,6 +9,7 @@
 namespace lanzhi\http;
 
 
+use GuzzleHttp\Psr7\AppendStream;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\StreamInterface;
 use Psr\Http\Message\UriInterface;
@@ -48,7 +49,7 @@ class StreamBuilder
             $string .= $body->getContents();
         }
 
-        return \GuzzleHttp\Psr7\stream_for($string);
+        return new AppendStream([\GuzzleHttp\Psr7\stream_for($string), $this->request->getBody()]);
     }
 
     private function getRequestUrl(UriInterface $uri)

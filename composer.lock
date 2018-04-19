@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "210ba3306e969965adb3ded9bb0c4beb",
-    "content-hash": "c5d814f777220d77c8dd8453ccb4828a",
+    "hash": "b00b465f45df695bbf3a574475575aca",
+    "content-hash": "2a4de53559f643edffa0016782b46478",
     "packages": [
         {
             "name": "guzzlehttp/psr7",
@@ -74,16 +74,16 @@
         },
         {
             "name": "lanzhi/php-coroutine",
-            "version": "dev-master",
+            "version": "v0.0.7",
             "source": {
                 "type": "git",
                 "url": "https://github.com/lanzhi/php-coroutine.git",
-                "reference": "58a9dcf12f4760c4403beac4f762a0f38c36ed5d"
+                "reference": "6ccf26a18988d53bde6af5464ac60705714e6aa8"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://files.phpcomposer.com/files/lanzhi/php-coroutine/58a9dcf12f4760c4403beac4f762a0f38c36ed5d.zip",
-                "reference": "58a9dcf12f4760c4403beac4f762a0f38c36ed5d",
+                "url": "https://files.phpcomposer.com/files/lanzhi/php-coroutine/6ccf26a18988d53bde6af5464ac60705714e6aa8.zip",
+                "reference": "6ccf26a18988d53bde6af5464ac60705714e6aa8",
                 "shasum": ""
             },
             "require": {
@@ -92,14 +92,6 @@
                 "psr/log": "^1.0"
             },
             "require-dev": {
-                "guzzlehttp/guzzle": "^6.3",
-                "kriswallsmith/buzz": "^0.17.1",
-                "nategood/httpful": "^0.2.20",
-                "php-http/httplug": "^1.1",
-                "psr/link": "^1.0",
-                "react/event-loop": "0.4.*",
-                "react/http-client": "0.5.8",
-                "rmccue/requests": "^1.7",
                 "symfony/console": "^4.0"
             },
             "type": "library",
@@ -119,23 +111,24 @@
                 }
             ],
             "description": "php coroutine",
-            "time": "2018-04-16 13:25:18"
+            "time": "2018-04-18 18:59:17"
         },
         {
             "name": "lanzhi/php-coroutine-socket",
-            "version": "v0.0.4",
+            "version": "v0.0.7",
             "source": {
                 "type": "git",
                 "url": "https://github.com/lanzhi/php-coroutine-socket.git",
-                "reference": "749f70e24699d9b569c9451743d39b871964b01a"
+                "reference": "f632097b7fd97c5a0b16173669871d9a98f2a2ae"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://files.phpcomposer.com/files/lanzhi/php-coroutine-socket/749f70e24699d9b569c9451743d39b871964b01a.zip",
-                "reference": "749f70e24699d9b569c9451743d39b871964b01a",
+                "url": "https://files.phpcomposer.com/files/lanzhi/php-coroutine-socket/f632097b7fd97c5a0b16173669871d9a98f2a2ae.zip",
+                "reference": "f632097b7fd97c5a0b16173669871d9a98f2a2ae",
                 "shasum": ""
             },
             "require": {
+                "lanzhi/php-coroutine": "^0.0.7",
                 "php": ">=7.0",
                 "psr/log": "^1.0"
             },
@@ -160,7 +153,7 @@
                 }
             ],
             "description": "php coroutine socket",
-            "time": "2018-04-17 05:54:14"
+            "time": "2018-04-18 19:26:04"
         },
         {
             "name": "php-ds/php-ds",

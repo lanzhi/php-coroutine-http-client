@@ -110,6 +110,7 @@ class RequestBuilder
             'set_headers' => [],
         ];
 
+        $options['_conditional'] = $options['_conditional'] ?? [];
         if (isset($options['form_params'])) {
             if (isset($options['multipart'])) {
                 throw new \InvalidArgumentException('You cannot use '

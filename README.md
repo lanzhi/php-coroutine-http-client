@@ -23,21 +23,33 @@ use lanzhi\http\Client;
 use Symfony\Component\Console\Output\ConsoleOutput;
 use Symfony\Component\Console\Logger\ConsoleLogger;
 
-$uri = 'test.com/get.php';
-
 $output = new ConsoleOutput(ConsoleOutput::VERBOSITY_VERY_VERBOSE);
 $client = new Client([], new ConsoleLogger($output));
-$requestTask = $client->get($uri, ['query'=>$query]);
 
-$requestTask->run();
+//file:get.php 将拿到的 $_GET 参数 ksort 排序之后，使用 json_encode($get, JSON_UNESCAPED_UNICODE) 转换为字符串输出
+$uri = "test.com/get.php";
+$query = [
+    'name' => 'lanzhi',
+    'sex'  => 'male',
+    'age'  => 'unknown',
+    'tag'  => uniqid()
+];
 
-$response = $requestTask->getReturn();
-echo "response status code:", $response->getStatusCode(), "\n";
+$request = $client->get($uri, ['query'=>$query]);
+$request->run();
+$response = $request->getReturn();
 if($response->getBody()){
-    echo "response body:", $response->getBody()->getContents(), "\n";
+    echo "response body size:", $response->getBody()->getSize(), "\n";
+    ksort($query);
+    echo "query: ", json_encode($query, JSON_UNESCAPED_UNICODE), "\n";
+    echo "body:  ", $response->getBody()->getContents(), "\n";
 }else{
     var_dump($response);
 }
+
+echo "response status: ", $response->getStatusCode(), "\n";
+echo "response phrase: ", $response->getReasonPhrase(), "\n\n";
+
 
 ```
 

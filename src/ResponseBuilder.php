@@ -34,7 +34,7 @@ class ResponseBuilder
     /**
      * ResponseBuilder constructor.
      * @param string $startLine
-     * @param string $header
+     * @param string $headers
      * @param string|null $body
      */
     public function __construct(string $startLine, string $headers, string $body=null)
@@ -68,7 +68,7 @@ class ResponseBuilder
     }
 
     /**
-     * @param string $header
+     * @param string $string
      * @return array
      */
     private function parseHeaders(string $string)

@@ -9,12 +9,11 @@
 namespace lanzhi\http;
 
 
-use lanzhi\coroutine\TaskUnitInterface;
+use lanzhi\coroutine\RoutineUnitInterface;
 use lanzhi\http\exceptions\HttpException;
 use lanzhi\http\exceptions\InvalidArgumentException;
 use lanzhi\http\exceptions\UnsupportedException;
 use lanzhi\socket\Connector;
-use lanzhi\socket\ConnectorInterface;
 use Psr\Http\Message\UriInterface;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
@@ -30,8 +29,8 @@ use Psr\Log\NullLogger;
  * 此外 options 不支持如下选项：
  * handler
  *
- * @method RequestTaskUnit get(string|UriInterface $uri,  array $options = [])
- * @method RequestTaskUnit post(string|UriInterface $uri, array $options = [])
+ * @method Request get(string|UriInterface $uri,  array $options = [])
+ * @method Request post(string|UriInterface $uri, array $options = [])
  */
 class Client
 {
@@ -88,9 +87,9 @@ class Client
      * @param string $method
      * @param UriInterface|string $uri
      * @param array $options
-     * @return TaskUnitInterface
+     * @return RoutineUnitInterface
      */
-    public function request($method, $uri, array $options = []): TaskUnitInterface
+    public function request($method, $uri, array $options = []): RoutineUnitInterface
     {
         $builder = new RequestBuilder($method, $uri, $this->defaultOptions + $options);
         $request = $builder->build();
@@ -99,9 +98,11 @@ class Client
             throw new UnsupportedException("unsupported now; scheme:https");
         }
 
-        $connector      = $this->getConnector($options);
+        $connectOptions = $this->getConnectOptions($options);
+        $connector      = Connector::getInstance()->setOptions($connectOptions)->setLogger($this->logger);
+
         $allowRedirects = $this->getAllowRedirects($options);
-        return new RequestTaskUnit($request, $connector, $allowRedirects, $this->logger);
+        return new Request($request, $connector, $allowRedirects, $this->logger);
     }
 
     /**
@@ -117,20 +118,6 @@ class Client
         }else{
             throw new HttpException("get unknown default option; option:{$option}");
         }
-    }
-
-    /**
-     * @var ConnectorInterface
-     */
-    private $connector;
-    private function getConnector(array $options)
-    {
-        if(!$this->connector){
-            $connectOptions = $this->getConnectOptions($options);
-            $this->connector = new Connector($connectOptions, $this->logger);
-        }
-
-        return $this->connector;
     }
 
     /**

@@ -53,13 +53,8 @@ echo "response phrase: ", $response->getReasonPhrase(), "\n\n";
 
 ```
 
-Example 2:
-```php
+其它可参见项目 examples 目录
 
-```
-```console
-modified:   src/RequestBuilder.php
-```
-
-#### 其它
-。。。
+#### 联系作者
+QQ : 310929334  
+微信: lanzhi_me

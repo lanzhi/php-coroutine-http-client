@@ -18,15 +18,15 @@ use Psr\Http\Message\StreamInterface;
 class Options
 {
     /**
-     * 连接建立超时时间，浮点型，默认 3.0
+     * 连接建立超时时间，浮点型，默认 10.0
      */
     const CONNECT_TIMEOUT = 'connect_timeout';
     /**
-     * 向连接中写入数据的超时时间，浮点型，默认 10.0
+     * 向连接中写入数据的超时时间，浮点型，默认 300.0
      */
     const WRITE_TIMEOUT   = 'write_timeout';
     /**
-     * 从连接中读取数据的超时时间，浮点型，默认 30.0
+     * 从连接中读取数据的超时时间，浮点型，默认 300.0
      */
     const READ_TIMEOUT    = 'read_timeout';
 

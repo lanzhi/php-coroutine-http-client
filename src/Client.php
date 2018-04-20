@@ -128,9 +128,9 @@ class Client
     private function getConnectOptions(array $options)
     {
         $timeout = [];
-        $timeout['connect'] = $options[Options::CONNECT_TIMEOUT] ?? 3;
-        $timeout['write']   = $options[Options::WRITE_TIMEOUT]   ?? 10;
-        $timeout['read']    = $options[Options::READ_TIMEOUT]    ?? 30;
+        $timeout['connect'] = $options[Options::CONNECT_TIMEOUT] ?? 10;
+        $timeout['write']   = $options[Options::WRITE_TIMEOUT]   ?? 300;
+        $timeout['read']    = $options[Options::READ_TIMEOUT]    ?? 300;
 
         return ['timeout'=>$timeout];
     }
@@ -138,8 +138,8 @@ class Client
     private function getAllowRedirects(array $options)
     {
         $allowRedirects = isset($options[Options::ALLOW_REDIRECTS]) ? $options[Options::ALLOW_REDIRECTS] : 3;
-        $allowRedirects = $allowRedirects<=0 ? 0  : $allowRedirects;
-        $allowRedirects = $allowRedirects>10 ? 10 : $allowRedirects;
+        $allowRedirects = $allowRedirects<=0 ? 0 : $allowRedirects;
+        $allowRedirects = $allowRedirects>=5 ? 5 : $allowRedirects;
 
         return $allowRedirects;
     }

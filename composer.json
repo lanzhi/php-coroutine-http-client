@@ -23,10 +23,6 @@
     },
     "require-dev": {
         "rmccue/requests": "^1.7",
-        "kriswallsmith/buzz": "^0.17.1",
-        "php-http/httplug": "^1.1",
-        "psr/link": "^1.0",
-        "nategood/httpful": "^0.2.20",
         "guzzlehttp/guzzle": "^6.3",
         "symfony/console": "^4.0",
         "react/event-loop": "0.4.*",

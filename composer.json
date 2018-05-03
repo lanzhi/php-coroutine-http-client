@@ -10,11 +10,10 @@
             "email": "i@lanzhi.me"
         }
     ],
-    "minimum-stability": "dev",
+    "minimum-stability": "stable",
     "require": {
         "php": ">=7.0",
-        "lanzhi/php-coroutine": "^0.0.11",
-        "lanzhi/php-coroutine-socket": "^0.0.8",
+        "lanzhi/php-coroutine-socket": "^0.0.14",
         "guzzlehttp/psr7": "^1.4",
         "psr/http-message": "^1.0"
     },
@@ -22,10 +21,6 @@
         "psr-4": {"lanzhi\\http\\": "src/"}
     },
     "require-dev": {
-        "rmccue/requests": "^1.7",
-        "guzzlehttp/guzzle": "^6.3",
-        "symfony/console": "^4.0",
-        "react/event-loop": "0.4.*",
-        "react/http-client": "0.5.8"
+        "symfony/console": "^4.0"
     }
 }
